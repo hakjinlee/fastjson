@@ -13,7 +13,7 @@ func (o *Object) Del(key string) {
 	if !o.keysUnescaped && strings.IndexByte(key, '\\') < 0 {
 		// Fast path - try searching for the key without object keys unescaping.
 		for i, kv := range o.kvs {
-			if kv.k == key {
+			if kv.K == key {
 				o.kvs = append(o.kvs[:i], o.kvs[i+1:]...)
 				return
 			}
@@ -24,7 +24,7 @@ func (o *Object) Del(key string) {
 	o.unescapeKeys()
 
 	for i, kv := range o.kvs {
-		if kv.k == key {
+		if kv.K == key {
 			o.kvs = append(o.kvs[:i], o.kvs[i+1:]...)
 			return
 		}
@@ -64,16 +64,16 @@ func (o *Object) Set(key string, value *Value) {
 	// Try substituting already existing entry with the given key.
 	for i := range o.kvs {
 		kv := &o.kvs[i]
-		if kv.k == key {
-			kv.v = value
+		if kv.K == key {
+			kv.V = value
 			return
 		}
 	}
 
 	// Add new entry.
 	kv := o.getKV()
-	kv.k = key
-	kv.v = value
+	kv.K = key
+	kv.V = value
 }
 
 // Set sets (key, value) entry in the array or object v.

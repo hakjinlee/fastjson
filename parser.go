@@ -2,10 +2,11 @@ package fastjson
 
 import (
 	"fmt"
-	"github.com/valyala/fastjson/fastfloat"
 	"strconv"
 	"strings"
 	"unicode/utf16"
+
+	"github.com/hakjinlee/fastjson/fastfloat"
 )
 
 // Parser parses JSON.
@@ -90,9 +91,9 @@ func skipWSSlow(s string) string {
 	return ""
 }
 
-type kv struct {
-	k string
-	v *Value
+type KV struct {
+	K string
+	V *Value
 }
 
 // MaxDepth is the maximum depth for nested JSON.
@@ -235,7 +236,7 @@ func parseObject(s string, c *cache, depth int) (*Value, string, error) {
 		if len(s) == 0 || s[0] != '"' {
 			return nil, s, fmt.Errorf(`cannot find opening '"" for object key`)
 		}
-		kv.k, s, err = parseRawKey(s[1:])
+		kv.K, s, err = parseRawKey(s[1:])
 		if err != nil {
 			return nil, s, fmt.Errorf("cannot parse object key: %s", err)
 		}
@@ -247,7 +248,7 @@ func parseObject(s string, c *cache, depth int) (*Value, string, error) {
 
 		// Parse value
 		s = skipWS(s)
-		kv.v, s, err = parseValue(s, c, depth)
+		kv.V, s, err = parseValue(s, c, depth)
 		if err != nil {
 			return nil, s, fmt.Errorf("cannot parse object value: %s", err)
 		}
@@ -450,7 +451,7 @@ func parseRawNumber(s string) (string, string, error) {
 // Object cannot be used from concurrent goroutines.
 // Use per-goroutine parsers or ParserPool instead.
 type Object struct {
-	kvs           []kv
+	kvs           []KV
 	keysUnescaped bool
 }
 
@@ -464,14 +465,14 @@ func (o *Object) MarshalTo(dst []byte) []byte {
 	dst = append(dst, '{')
 	for i, kv := range o.kvs {
 		if o.keysUnescaped {
-			dst = escapeString(dst, kv.k)
+			dst = escapeString(dst, kv.K)
 		} else {
 			dst = append(dst, '"')
-			dst = append(dst, kv.k...)
+			dst = append(dst, kv.K...)
 			dst = append(dst, '"')
 		}
 		dst = append(dst, ':')
-		dst = kv.v.MarshalTo(dst)
+		dst = kv.V.MarshalTo(dst)
 		if i != len(o.kvs)-1 {
 			dst = append(dst, ',')
 		}
@@ -491,11 +492,11 @@ func (o *Object) String() string {
 	return b2s(b)
 }
 
-func (o *Object) getKV() *kv {
+func (o *Object) getKV() *KV {
 	if cap(o.kvs) > len(o.kvs) {
 		o.kvs = o.kvs[:len(o.kvs)+1]
 	} else {
-		o.kvs = append(o.kvs, kv{})
+		o.kvs = append(o.kvs, KV{})
 	}
 	return &o.kvs[len(o.kvs)-1]
 }
@@ -507,7 +508,7 @@ func (o *Object) unescapeKeys() {
 	kvs := o.kvs
 	for i := range kvs {
 		kv := &kvs[i]
-		kv.k = unescapeStringBestEffort(kv.k)
+		kv.K = unescapeStringBestEffort(kv.K)
 	}
 	o.keysUnescaped = true
 }
@@ -526,8 +527,8 @@ func (o *Object) Get(key string) *Value {
 	if !o.keysUnescaped && strings.IndexByte(key, '\\') < 0 {
 		// Fast path - try searching for the key without object keys unescaping.
 		for _, kv := range o.kvs {
-			if kv.k == key {
-				return kv.v
+			if kv.K == key {
+				return kv.V
 			}
 		}
 	}
@@ -536,11 +537,25 @@ func (o *Object) Get(key string) *Value {
 	o.unescapeKeys()
 
 	for _, kv := range o.kvs {
-		if kv.k == key {
-			return kv.v
+		if kv.K == key {
+			return kv.V
 		}
 	}
 	return nil
+}
+
+// Visit calls f for each item in the o in the original order
+// of the parsed JSON.
+//
+// f cannot hold key and/or v after returning.
+func (o *Object) KVs() []KV {
+	if o == nil {
+		return nil
+	}
+
+	o.unescapeKeys()
+
+	return o.kvs
 }
 
 // Visit calls f for each item in the o in the original order
@@ -555,7 +570,7 @@ func (o *Object) Visit(f func(key []byte, v *Value)) {
 	o.unescapeKeys()
 
 	for _, kv := range o.kvs {
-		f(s2b(kv.k), kv.v)
+		f(s2b(kv.K), kv.V)
 	}
 }
 
