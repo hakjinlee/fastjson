@@ -481,7 +481,7 @@ func TestValueGet(t *testing.T) {
 				if v.Type() != TypeArray {
 					t.Fatalf("unexpected value type; got %d; want %d", v.Type(), TypeArray)
 				}
-				s := v.String()
+				s := v.JsonString()
 				if s != `["baz"]` {
 					t.Fatalf("unexpected array; got %q; want %q", s, `["baz"]`)
 				}
@@ -749,7 +749,7 @@ func TestParserParse(t *testing.T) {
 		if n != 0 {
 			t.Fatalf("unexpected number of items in empty object: %d; want 0", n)
 		}
-		s := v.String()
+		s := v.JsonString()
 		if s != "{}" {
 			t.Fatalf("unexpected string representation of empty object: got %q; want %q", s, "{}")
 		}
@@ -772,7 +772,7 @@ func TestParserParse(t *testing.T) {
 		if n != 0 {
 			t.Fatalf("unexpected number of items in empty array: %d; want 0", n)
 		}
-		s := v.String()
+		s := v.JsonString()
 		if s != "[]" {
 			t.Fatalf("unexpected string representation of empty array: got %q; want %q", s, "[]")
 		}
@@ -787,7 +787,7 @@ func TestParserParse(t *testing.T) {
 		if tp != TypeNull || tp.String() != "null" {
 			t.Fatalf("unexpected value obtained for null: %#v", v)
 		}
-		s := v.String()
+		s := v.JsonString()
 		if s != "null" {
 			t.Fatalf("unexpected string representation of null; got %q; want %q", s, "null")
 		}
@@ -809,7 +809,7 @@ func TestParserParse(t *testing.T) {
 		if !b {
 			t.Fatalf("expecting true; got false")
 		}
-		s := v.String()
+		s := v.JsonString()
 		if s != "true" {
 			t.Fatalf("unexpected string representation of true; got %q; want %q", s, "true")
 		}
@@ -831,7 +831,7 @@ func TestParserParse(t *testing.T) {
 		if b {
 			t.Fatalf("expecting false; got true")
 		}
-		s := v.String()
+		s := v.JsonString()
 		if s != "false" {
 			t.Fatalf("unexpected string representation of false; got %q; want %q", s, "false")
 		}
@@ -853,7 +853,7 @@ func TestParserParse(t *testing.T) {
 		if n != 12345 {
 			t.Fatalf("unexpected value obtained for integer; got %d; want %d", n, 12345)
 		}
-		s := v.String()
+		s := v.JsonString()
 		if s != "12345" {
 			t.Fatalf("unexpected string representation of integer; got %q; want %q", s, "12345")
 		}
@@ -875,7 +875,7 @@ func TestParserParse(t *testing.T) {
 		if n != int64(-8838840643388017390) {
 			t.Fatalf("unexpected value obtained for int64; got %d; want %d", n, int64(-8838840643388017390))
 		}
-		s := v.String()
+		s := v.JsonString()
 		if s != "-8838840643388017390" {
 			t.Fatalf("unexpected string representation of int64; got %q; want %q", s, "-8838840643388017390")
 		}
@@ -897,7 +897,7 @@ func TestParserParse(t *testing.T) {
 		if n != uint64(18446744073709551615) {
 			t.Fatalf("unexpected value obtained for uint; got %d; want %d", n, uint64(18446744073709551615))
 		}
-		s := v.String()
+		s := v.JsonString()
 		if s != "18446744073709551615" {
 			t.Fatalf("unexpected string representation of uint; got %q; want %q", s, "18446744073709551615")
 		}
@@ -919,7 +919,7 @@ func TestParserParse(t *testing.T) {
 		if n != 18446744073709551615 {
 			t.Fatalf("unexpected value obtained for uint64; got %d; want %d", n, uint64(18446744073709551615))
 		}
-		s := v.String()
+		s := v.JsonString()
 		if s != "18446744073709551615" {
 			t.Fatalf("unexpected string representation of uint64; got %q; want %q", s, "18446744073709551615")
 		}
@@ -941,7 +941,7 @@ func TestParserParse(t *testing.T) {
 		if n != -12.345 {
 			t.Fatalf("unexpected value obtained for integer; got %f; want %f", n, -12.345)
 		}
-		s := v.String()
+		s := v.JsonString()
 		if s != "-12.345" {
 			t.Fatalf("unexpected string representation of integer; got %q; want %q", s, "-12.345")
 		}
@@ -963,7 +963,7 @@ func TestParserParse(t *testing.T) {
 		if string(sb) != "foo bar" {
 			t.Fatalf("unexpected value obtained for string; got %q; want %q", sb, "foo bar")
 		}
-		ss := v.String()
+		ss := v.JsonString()
 		if ss != `"foo bar"` {
 			t.Fatalf("unexpected string representation of string; got %q; want %q", ss, `"foo bar"`)
 		}
@@ -985,7 +985,7 @@ func TestParserParse(t *testing.T) {
 		if string(sb) != "\n\t\\foo\"bar\u3423x/\b\f\r\\" {
 			t.Fatalf("unexpected value obtained for string; got %q; want %q", sb, "\n\t\\foo\"bar\u3423x/\b\f\r\\")
 		}
-		ss := v.String()
+		ss := v.JsonString()
 		if ss != `"\n\t\\foo\"bar㐣x/\b\f\r\\"` {
 			t.Fatalf("unexpected string representation of string; got %q; want %q", ss, `"\n\t\\foo\"bar㐣x/\b\f\r\\"`)
 		}
@@ -1014,7 +1014,7 @@ func TestParserParse(t *testing.T) {
 			t.Fatalf("unexpected value obtained for non-existing key: %#v", vv)
 		}
 
-		s := v.String()
+		s := v.JsonString()
 		if s != `{"foo":"bar"}` {
 			t.Fatalf("unexpected string representation for object; got %q; want %q", s, `{"foo":"bar"}`)
 		}
@@ -1050,7 +1050,7 @@ func TestParserParse(t *testing.T) {
 			t.Fatalf("unexpected value obtained for non-existing key: %#v", vv)
 		}
 
-		s := v.String()
+		s := v.JsonString()
 		if s != `{"foo":[1,2,3],"bar":{},"baz":123.456}` {
 			t.Fatalf("unexpected string representation for object; got %q; want %q", s, `{"foo":[1,2,3],"bar":{},"baz":123.456}`)
 		}
@@ -1076,7 +1076,7 @@ func TestParserParse(t *testing.T) {
 			t.Fatalf("unexpected type for a[0]; got %d; want %d", a[0].Type(), TypeObject)
 		}
 
-		s := v.String()
+		s := v.JsonString()
 		if s != `[{"bar":[[],[[]]]}]` {
 			t.Fatalf("unexpected string representation for array; got %q; want %q", s, `[{"bar":[[],[[]]]}]`)
 		}
@@ -1111,7 +1111,7 @@ func TestParserParse(t *testing.T) {
 			t.Fatalf("unexpected type for a[3]; got %d; want %d", a[3].Type(), TypeArray)
 		}
 
-		s := v.String()
+		s := v.JsonString()
 		if s != `[1,"foo",{"bar":[],"baz":""},["x","y"]]` {
 			t.Fatalf("unexpected string representation for array; got %q; want %q", s, `[1,"foo",{"bar":[],"baz":""},["x","y"]]`)
 		}
@@ -1127,7 +1127,7 @@ func TestParserParse(t *testing.T) {
 			t.Fatalf("unexpected type obtained for object: %#v", v)
 		}
 
-		ss := v.String()
+		ss := v.JsonString()
 		if ss != s {
 			t.Fatalf("unexpected string representation for object; got %q; want %q", ss, s)
 		}
@@ -1137,7 +1137,7 @@ func TestParserParse(t *testing.T) {
 		if err != nil {
 			t.Fatalf("cannot parse largeFixture: %s", err)
 		}
-		ss = v.String()
+		ss = v.JsonString()
 		if ss != s {
 			t.Fatalf("unexpected string representation for object; got\n%q; want\n%q", ss, s)
 		}
@@ -1193,7 +1193,7 @@ func TestParserParse(t *testing.T) {
 		}
 
 		// Make sure the json remains valid after visiting all the items.
-		ss := v.String()
+		ss := v.JsonString()
 		if ss != s {
 			t.Fatalf("unexpected string representation for object; got\n%q; want\n%q", ss, s)
 		}

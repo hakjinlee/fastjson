@@ -622,14 +622,14 @@ func (v *Value) MarshalTo(dst []byte) []byte {
 	}
 }
 
-// String returns string representation of the v.
+// JsonString returns string representation of the v.
 //
 // The function is for debugging purposes only. It isn't optimized for speed.
 // See MarshalTo instead.
 //
 // Don't confuse this function with StringBytes, which must be called
 // for obtaining the underlying JSON string for the v.
-func (v *Value) String() string {
+func (v *Value) JsonString() string {
 	b := v.MarshalTo(nil)
 	// It is safe converting b to string without allocation, since b is no longer
 	// reachable after this line.
@@ -903,6 +903,13 @@ func (v *Value) StringBytes() ([]byte, error) {
 		return nil, fmt.Errorf("value doesn't contain string; it contains %s", v.Type())
 	}
 	return s2b(v.s), nil
+}
+
+func (v *Value) String() (string, error) {
+	if v.Type() != TypeString {
+		return "", fmt.Errorf("value doesn't contain string; it contains %s", v.Type())
+	}
+	return v.s, nil
 }
 
 // Float64 returns the underlying JSON number for the v.
